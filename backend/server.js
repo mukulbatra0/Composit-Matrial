@@ -9,8 +9,9 @@ const app = express();
 app.use(cors({
   origin: [
     'http://localhost:3000',
-    'https://composit-matrial-front.vercel.app/'  // Add your frontend URL
-  ]
+    'https://composit-matrial-front.vercel.app'
+  ],
+  credentials: true
 }));
 
 app.use(express.json());
@@ -21,12 +22,12 @@ mongoose.connect(process.env.MONGODB_URI)
   .catch((err) => console.error('MongoDB connection error:', err));
 
 // Routes
-app.use('/api/materials', require('./routes/materials'));
-app.use('/api/composites', require('./routes/composites'));
-app.use('/api/load-deflection', require('./routes/loadDeflection'));
+app.use('/materials', require('./routes/materials'));
+app.use('/composites', require('./routes/composites'));
+app.use('/load-deflection', require('./routes/loadDeflection'));
 
 // Health check
-app.get('/api/health', (req, res) => {
+app.get('/health', (req, res) => {
   res.json({ status: 'OK', message: 'Server is running' });
 });
 
