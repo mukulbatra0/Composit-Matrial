@@ -16,10 +16,41 @@ app.use(cors({
 
 app.use(express.json());
 
-// MongoDB Connection
-mongoose.connect(process.env.MONGODB_URI)
-  .then(() => console.log('MongoDB connected successfully'))
-  .catch((err) => console.error('MongoDB connection error:', err));
+// MongoDB Connection with better serverless handling
+let isConnected = false;
+
+const connectDB = async () => {
+  if (isConnected) {
+    console.log('Using existing database connection');
+    return;
+  }
+
+  try {
+    const db = await mongoose.connect(process.env.MONGODB_URI, {
+      serverSelectionTimeoutMS: 5000,
+      socketTimeoutMS: 45000,
+    });
+    
+    isConnected = db.connections[0].readyState === 1;
+    console.log('MongoDB connected successfully');
+  } catch (err) {
+    console.error('MongoDB connection error:', err);
+    throw err;
+  }
+};
+
+// Connect on startup
+connectDB();
+
+// Middleware to ensure connection before each request
+app.use(async (req, res, next) => {
+  try {
+    await connectDB();
+    next();
+  } catch (error) {
+    res.status(500).json({ error: 'Database connection failed', message: error.message });
+  }
+});
 
 // Routes
 app.use('/materials', require('./routes/materials'));
@@ -40,6 +71,7 @@ app.get('/health', async (req, res) => {
       status: 'OK', 
       message: 'Server is running',
       database: states[dbState],
+      isConnected: isConnected,
       documentsCount: count
     });
   } catch (error) {
