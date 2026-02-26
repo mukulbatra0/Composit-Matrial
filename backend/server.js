@@ -6,7 +6,13 @@ require('dotenv').config();
 const app = express();
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: [
+    'http://localhost:3000',
+    'https://composit-matrial-front.vercel.app/'  // Add your frontend URL
+  ]
+}));
+
 app.use(express.json());
 
 // MongoDB Connection
