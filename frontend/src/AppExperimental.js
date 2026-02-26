@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import MaterialSelector from './components/MaterialSelector';
 import PropertyCard from './components/PropertyCard';
 import PropertyVsFractionChart from './components/PropertyVsFractionChart';
 import StressStrainChart from './components/StressStrainChart';
