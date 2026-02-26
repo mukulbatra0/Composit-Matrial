@@ -5,10 +5,13 @@ const CompositeData = require('../models/CompositeData');
 // GET all unique fiber types
 router.get('/fiber-types', async (req, res) => {
   try {
+    console.log('Fetching fiber types...');
     const fiberTypes = await CompositeData.distinct('fiber_type');
+    console.log('Found fiber types:', fiberTypes);
     res.json(fiberTypes.sort());
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error('Error fetching fiber types:', error);
+    res.status(500).json({ message: error.message, error: error.toString() });
   }
 });
 

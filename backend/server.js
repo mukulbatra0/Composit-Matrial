@@ -27,8 +27,28 @@ app.use('/composites', require('./routes/composites'));
 app.use('/load-deflection', require('./routes/loadDeflection'));
 
 // Health check
-app.get('/health', (req, res) => {
-  res.json({ status: 'OK', message: 'Server is running' });
+app.get('/health', async (req, res) => {
+  try {
+    const dbState = mongoose.connection.readyState;
+    const states = ['disconnected', 'connected', 'connecting', 'disconnecting'];
+    
+    // Try to count documents
+    const CompositeData = require('./models/CompositeData');
+    const count = await CompositeData.countDocuments();
+    
+    res.json({ 
+      status: 'OK', 
+      message: 'Server is running',
+      database: states[dbState],
+      documentsCount: count
+    });
+  } catch (error) {
+    res.status(500).json({ 
+      status: 'ERROR', 
+      message: error.message,
+      database: 'error'
+    });
+  }
 });
 
 const PORT = process.env.PORT || 5000;
